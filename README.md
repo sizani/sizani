@@ -3,10 +3,15 @@ An AWS cloud information and reporting framework. You can avoid writing scripts 
 I have tested the framework on Mac, Ubuntu and Windows 10.
 
 ## Getting Started
-These instructions will get you a copy of the project up and running on your machine for development, testing and production purposes. See deployment for notes on how to deploy the project on a live system.
+These instructions will get you a copy of the project up and running on your machine for development, testing and production purposes. See deployment notes on how to deploy the project on a live system.
+
+### Services Supported
+1. EC2
+
+I will add a lot more to this project. Many more AWS services, cloud monitoring tracking, selective information, alerting ..etc.
 
 ### Installation
-The project is not yet on pypi. I will uplaod it to pypi soon. 
+The project is not yet on pypi. I will upload it to pypi soon. 
 
 1. Currently, download the [gitrepo](https://github.com/sizani/sizani-aws/archive/master.zip) and extract it to your any system running Ubuntu, MacOS, Windows 10 or *nix OS.
 ```
@@ -132,7 +137,7 @@ aws:
   # Mandatory secret access key to connect to AWS cloud provider
   aws_secret_access_key: MYSECRETACCESSKRY
   region: us-west-2
-  # Resource is what you want the information about, Currently supports single value will add support
+  # Resource is what you want the information about, Currently supports single resource will add support
   # for multiple values soon
   resources: ec2
   # Currently prints very detailed information via all attributes .
