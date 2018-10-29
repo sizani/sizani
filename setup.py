@@ -57,7 +57,7 @@ setuptools.setup(
     setup_requires=setuptools_require,
     extras_require={
         "build": ["wheel"],
-        "release": ["releasecmd>=0.0.1"],
+        "release": ["releasecmd>=0.0.2"],
     },
     classifiers=[
         "Development Status :: 4 - Beta",
@@ -76,7 +76,6 @@ setuptools.setup(
         "Programming Language :: Python :: 3.7",
         'Topic :: System :: Installation/Setup',
         'Topic :: System :: Systems Administration',
-        'Topic :: System :: Systems Monitoring',
         'Topic :: Utilities',
     ],
     scripts=[

@@ -64,18 +64,19 @@ class MURID:
             self._log.traceEnter(self.__class__.__name__)
             try:
                 self._cmdLineArgs = args.CmdLineArgs
-                self._parse = self._cmdLineArgs.parse_option()
+                self._parse = self._cmdLineArgs()
+                self._parse = self._parse.parse_option()
                 if(self._parse.murid):
                     self._yaml = yamlmgr.YamlManager(self._parse.murid)
                 else:
-                    parser.print_help()
-                    parser.exit()
+                    self._parse.print_help()
+                    self._parse.exit()
                 cloudprovider = self._yaml.getCloudProvider()
                 if (cloudprovider == self._yaml.PROP_KEY_CLOUDPROVIDER_AWS):
                     self._sessionImpl = awssession.AWSSessionImpl(self._yaml)
                 else:
                     self._log.error(
-                        "Unsupported cloud provider value: %s. It needs to be in following format \n --- \n aws: \n\t aws_access_key_id: ACCESSKEYID \n\t aws_secret_access_key: SECRETACCESSKEY" % (cloudprovider))
+                        "Unsupported cloud provider value: %s. It needs to be in following format \n --- \n aws: \n\t aws_access_key_id: ACCESSKEYID \n\t aws_secret_access_key: SECRETACCESSKEY \n\t region: \n\t attributes:" % (cloudprovider))
             except:
                 type, value, tb = sys.exc_info()
                 self._log.exception("", type, value, tb)

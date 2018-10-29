@@ -20,6 +20,6 @@ from datetime import datetime
 __author__ = "Ravi Tiwari"
 __copyright__ = "Copyright 2018-{}, {}".format(datetime.now().year, __author__)
 __license__ = "Apache License 2.0"
-__version__ = "0.0.1"
+__version__ = "0.0.10"
 __maintainer__ = __author__
 __email__ = "rtiwariops@gmail.com"
