@@ -52,6 +52,7 @@ setuptools.setup(
     packages=setuptools.find_packages(exclude=["test*"]),
     zip_safe=False,
     include_package_data=True,
+    keywords=["aws", "cloud", "ec2"],
     python_requires='>=2.7,!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*',
     install_requires=setuptools_require + install_requires,
     setup_requires=setuptools_require,

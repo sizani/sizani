@@ -16,10 +16,16 @@
 # limitations under the License.
 
 # # -*- coding: utf-8 -*-
-from datetime import datetime
-__author__ = "Ravi Tiwari"
-__copyright__ = "Copyright 2018-{}, {}".format(datetime.now().year, __author__)
-__license__ = "Apache License 2.0"
-__version__ = "0.0.13"
-__maintainer__ = __author__
-__email__ = "rtiwariops@gmail.com"
+
+from __future__ import absolute_import, division
+import abc
+import six
+
+
+@six.add_metaclass(abc.ABCMeta)
+class SessionInterface:
+    """This class provides contract that all session implementation
+        classes must honor and implement"""
+    @abc.abstractmethod
+    def monitor(self):
+        pass
