@@ -32,7 +32,7 @@ optional arguments:
   -V, --version         show program's version number and exit
   -f FILE, --file FILE  specify a murid file to run
  ```
-5. Next, let`s pass the yaml file to sizani to connect to AWS and capture all kind of information about you AWS resource.
+5. Next, let`s pass the yaml file to sizani to connect to AWS and capture all kind of information in JSON format about your AWS resource.
 ```
 sizani -f myec2.yaml
 {
@@ -120,4 +120,21 @@ sizani -f myec2.yaml
     }
 }
 
+```
+#### YAML Coding guidelines:
+YAML is a very simple human-readable data serialization language. Please make sure to pass yaml in following format for sizani to work.
+```
+---
+# Mandatory provider name: aws [Enterprise version will support all cloud providers and many more functionalities]
+aws:
+  # Mandatory access key to connect to AWS cloud provider
+  aws_access_key_id: MYACCESSKEYID
+  # Mandatory secret access key to connect to AWS cloud provider
+  aws_secret_access_key: MYSECRETACCESSKRY
+  region: us-west-2
+  # Resource is what you want the information about, Currently supports single value will add support
+  # for multiple values soon
+  resources: ec2
+  # Currently prints very detailed information via all attributes .
+  attributes: all
 ```
