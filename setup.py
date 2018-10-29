@@ -37,7 +37,7 @@ setuptools_require = ["setuptools>=38.3.0"]
 with open(os.path.join(MODULE_NAME, "__version__.py")) as f:
     exec(f.read(), pkg_info)
 
-with io.open("README.rst", encoding=ENCODING) as fp:
+with io.open("README.md", encoding=ENCODING) as fp:
     long_description = fp.read()
 
 with open(os.path.join(REQUIREMENT_DIR, "requirements.txt")) as f:
