@@ -115,7 +115,7 @@ class YamlManager:
                     self.clear()
                 fis = open(self._filename)
                 self._data = yaml.load(fis)
-            except FileNotFoundError as fe:
+            except IOError as fe:
                 self._log.error(
                     "Missing yaml file: The file %s that is passed via command line does not exists" % (fis))
             except:
