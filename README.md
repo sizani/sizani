@@ -7,7 +7,8 @@ These instructions will get you a copy of the project up and running on your mac
 
 ### Services Supported
 1. EC2
-Will add other services soon.
+
+I will add a lot more to this project. Many more AWS services, cloud monitoring tracking, selective information, alerting ..etc.
 
 ### Installation
 The project is not yet on pypi. I will upload it to pypi soon. 
