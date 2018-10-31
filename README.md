@@ -1,5 +1,5 @@
-# sizani-aws
-An AWS cloud information and reporting framework. You can avoid writing scripts and use YAML to get a complete information about your infrastructure running on AWS.
+# sizani
+A cloud status and reporting framework. You can avoid writing scripts and using generic command line tool to check stats or monitor your cloud resource instead use YAML to get a complete information about your infrastructure running on Cloud in a json format or beautify tabular format.
 I have tested the framework on Mac, Ubuntu and Windows 10.
 
 ## Getting Started
@@ -11,11 +11,11 @@ These instructions will get you a copy of the project up and running on your mac
 I will add a lot more to this project. Many more AWS services, cloud monitoring tracking, selective information, alerting ..etc.
 
 ### Installation
-The project is not yet on pypi. I will upload it to pypi soon. 
+The project is not yet on pypi. I will upload it to pypi soon.
 
-1. Currently, download the [gitrepo](https://github.com/sizani/sizani-aws/archive/master.zip) and extract it to your any system running Ubuntu, MacOS, Windows 10 or *nix OS.
+1. Currently, download the [gitrepo](https://github.com/sizani/sizani/archive/master.zip) and extract it to your any system running Ubuntu, MacOS, Windows 10 or *nix OS.
 ```
-wget https://github.com/sizani/sizani-aws/archive/master.zip
+wget https://github.com/sizani/sizani/archive/master.zip
 ```
 2. Extract/Unzip the master.zip
 ```
@@ -37,97 +37,90 @@ optional arguments:
   -V, --version         show program's version number and exit
   -f FILE, --file FILE  specify a murid file to run
  ```
-5. Next, let`s pass the yaml file to sizani to connect to AWS and capture all kind of information in JSON format about your AWS resource.
+5. Next, let`s pass the yaml file to sizani to connect to AWS and capture common stats information in the default beautify tabular format about your AWS resource.
+```
+sizani -f myec2.yaml
+```
+![table_format](https://github.com/sizani/sizani/blob/master/docs/img/table_output.png?raw=true)
+
+6. Next, let`s pass the yaml file to sizani to connect to AWS and capture common stats information in JSON format about your AWS resource.
 ```
 sizani -f myec2.yaml
 {
-    "i-xxxxxxxxx": {
-        "ami_launch_index": 0,
-        "architecture": "x86_64",
-        "availability_zone": "us-west-2b",
-        "block_device_mappings": {
-            "block_device_attachtime": null,
-            "block_device_delete_on_termination": true,
-            "block_device_name": "/dev/xvda",
-            "block_device_status": "attached",
-            "block_device_volume_id": "vol-0xxxxxxxxx"
-        },
-        "client_token": "not_applicable",
-        "cpu_options": {
-            "CoreCount": 1,
-            "ThreadsPerCore": 1
-        },
-        "ebs_optimized": false,
-        "ena_support": true,
-        "group_name": "launch-wizard-1",
-        "hypervisor": "xen",
-        "image_id": [
-            "ami-axxxxxxx"
-        ],
+    "i-035c7ae5efa22c67d": {
         "instance_state": "running",
         "instance_type": "t2.micro",
-        "kernel_id": "not_applicable",
-        "key_name": "alxxxxx",
-        "launch_time": "2018-10-28 18:25:21",
-        "monitoring": {
-            "State": "disabled"
-        },
         "network_interfaces": {
-            "association": {
-                "Association": {
-                    "IpOwnerId": "amazon",
-                    "PublicDnsName": "ec2-xx-xxx-xxx-xxx.us-west-2.compute.amazonaws.com",
-                    "PublicIp": "xx.xxx.xxx.xxx"
-                },
-                "Primary": true,
-                "PrivateDnsName": "ip-1xx-xx-xx-xx.us-west-2.compute.internal",
-                "PrivateIpAddress": "xxx.xx.xx.xx"
+            "Association": {
+                "IpOwnerId": "amazon",
+                "PublicDnsName": "ec2-54-186-68-70.us-west-2.compute.amazonaws.com",
+                "PublicIp": "54.186.68.70"
             },
-            "attachment": {
-                "attachment_id": "eni-attach-09xxxxxxxxx",
-                "attachment_time": "2018-10-28 18:25:21",
-                "delete_on_termination": true,
-                "device_index": 0,
-                "status": "attached"
-            },
-            "description": "",
-            "groups": {
-                "group_id": "sg-0xxxxxxxxx",
-                "group_name": "launch-wizard-1"
-            },
-            "mac_address": "02:xx:xx:xx:xx:xx",
-            "network_interface_id": "eni-04xxxxxxxxxx",
-            "owner_id": "7xxxxxxxxxxxxx",
-            "source_dest_check": true,
-            "subnet_id": "subnet-axxxxxxx",
-            "vpc_id": "vpc-f4xxxxxxxxx"
+            "Primary": true,
+            "PrivateDnsName": "ip-172-31-16-120.us-west-2.compute.internal",
+            "PrivateIpAddress": "172.31.16.120"
         },
-        "platform": "not_applicable",
-        "PublicDnsName": "ec2-xx-xxx-xxx-xxx.us-west-2.compute.amazonaws.com",
-        "PublicIp": "xx.xxx.xxx.xxx",
-        "ramdisk_id": "not_applicable",
-        "root_device_name": "/dev/xvda",
-        "root_device_type": "ebs",
-        "security_groups": {
-            "group_id": "sg-xxxxxxxxxxxx",
-            "group_name": "launch-wizard-1"
+        "public_dns_name": "ec2-54-186-68-70.us-west-2.compute.amazonaws.com",
+        "public_ip_address": "54.186.68.70"
+    },
+    "i-0af2ffa689e3a42bf": {
+        "instance_state": "running",
+        "instance_type": "t2.micro",
+        "network_interfaces": {
+            "Association": {
+                "IpOwnerId": "amazon",
+                "PublicDnsName": "ec2-54-191-175-224.us-west-2.compute.amazonaws.com",
+                "PublicIp": "54.191.175.224"
+            },
+            "Primary": true,
+            "PrivateDnsName": "ip-172-31-20-143.us-west-2.compute.internal",
+            "PrivateIpAddress": "172.31.20.143"
         },
-        "state_reason": null,
-        "state_transition_reason": "",
-        "tags": [
-            {
-                "Key": "name",
-                "Value": "test"
-            }
-        ],
-        "tenancy": "default",
-        "virtualization_type": "hvm"
+        "public_dns_name": "ec2-54-191-175-224.us-west-2.compute.amazonaws.com",
+        "public_ip_address": "54.191.175.224"
     }
 }
-
 ```
+7. Now, let`s shutdown the one of the two servers and re-run the scripts to check the output. Let`s try with the default beautify tabular format. Here you can see a couple custom messages while the server is in shutdown state.
+![table_format](https://github.com/sizani/sizani/blob/master/docs/img/table_output_with_shutdown.png?raw=true)
+
+8. Let`s try steps 7 with json format.
+```
+sizani -f myec2.yaml
+{
+    "i-035c7ae5efa22c67d": {
+        "instance_state": "running",
+        "instance_type": "t2.micro",
+        "network_interfaces": {
+            "Association": {
+                "IpOwnerId": "amazon",
+                "PublicDnsName": "ec2-54-186-68-70.us-west-2.compute.amazonaws.com",
+                "PublicIp": "54.186.68.70"
+            },
+            "Primary": true,
+            "PrivateDnsName": "ip-172-31-16-120.us-west-2.compute.internal",
+            "PrivateIpAddress": "172.31.16.120"
+        },
+        "public_dns_name": "ec2-54-186-68-70.us-west-2.compute.amazonaws.com",
+        "public_ip_address": "54.186.68.70"
+    },
+    "i-0af2ffa689e3a42bf": {
+        "instance_state": "stopped",
+        "instance_type": "t2.micro",
+        "network_interfaces": {
+            "Primary": true,
+            "PrivateDnsName": "ip-172-31-20-143.us-west-2.compute.internal",
+            "PrivateIpAddress": "172.31.20.143"
+        },
+        "public_dns_name": "available_only_in_running_state",
+        "public_ip_address": "available_only_in_running_state"
+    }
+}
+```
+
 #### YAML Coding guidelines:
 YAML is a very simple human-readable data serialization language. Please make sure to pass yaml in following format for sizani to work.
+
 ```
 ---
 # Mandatory provider name: aws [Enterprise version will support all cloud providers and many more functionalities]
@@ -140,6 +133,8 @@ aws:
   # Resource is what you want the information about, Currently supports single resource will add support
   # for multiple values soon
   resources: ec2
-  # Currently prints very detailed information via all attributes .
-  attributes: all
+  # Currently prints a few attributes even with all as attributes value.
+  attributes: common
+  # output_format [table|Json] - Default: table (lower_case) | This option is not required.
+  format: json
 ```
