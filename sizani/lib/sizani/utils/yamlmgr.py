@@ -93,6 +93,11 @@ class YamlManager:
                 self._awscreds['region'] = self._data['aws']['region']
                 self._awscreds['resources'] = self._data['aws']['resources']
                 self._awscreds['attributes'] = self._data['aws']['attributes']
+                format = "format" in self._data['aws']
+                if (format == True):
+                    self._awscreds['format'] = self._data['aws']['format']
+                else:
+                    self._awscreds['format'] = 'table'
                 return self._awscreds
             except (KeyError, TypeError) as kt:
                 self._log.error(

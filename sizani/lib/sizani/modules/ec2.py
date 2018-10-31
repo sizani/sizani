@@ -1,20 +1,32 @@
 # # -*- coding: utf-8 -*-
 import json
+import re
 from collections import defaultdict
 from sizani.lib.sizani.utils import logconf
 from sizani.lib.sizani.utils.decor import Decor as ppprint
+from tabulate import tabulate
+import textwrap
+
+
+class bcolors:
+    HEADER = '\033[35m'
+    NULLIFY = '\033[0m'
+    RUNNING = '\033[32m'
+    SHUTDOWN = '\033[31m'
+    PENDING = '\033[33m'
 
 
 class EC2:
     # Custom logger
     _log = logconf.SIZANILogger()
 
-    def __init__(self, ec2resource):
+    def __init__(self, ec2resource, format):
         """Default constructor"""
         try:
             self._log.traceEnter(self.__class__.__name__)
             self._ec2resource = ec2resource
-            self._monitor(ec2resource)
+            self._format = format
+            self._monitor(ec2resource, format)
         finally:
             self._log.traceExit(self.__class__.__name__)
 
@@ -26,13 +38,14 @@ class EC2:
         finally:
             self._log.traceExit(self.__class__.__name__)
 
-    def _monitor(self, ec2resource):
+    def _monitor(self, ec2resource, format):
         try:
             self._log.traceEnter(self.__class__.__name__)
             args = defaultdict()
             placement = defaultdict()
             productcodes = defaultdict()
             netinfo = defaultdict()
+            tabformat = []
             instances = self._ec2resource.instances.filter(Filters=[{
                 'Name':
                 'instance-state-name',
@@ -120,7 +133,10 @@ class EC2:
                     try:
                         instance.public_dns_name
                         if(instance.public_dns_name is None or instance.public_dns_name == ""):
-                            public_dns_name = "available_only_in_running_state"
+                            if(format == 'table'):
+                                public_dns_name = bcolors.SHUTDOWN+'available_only_in_running_state'+bcolors.NULLIFY
+                            else:
+                                public_dns_name = 'available_only_in_running_state'
                         else:
                             public_dns_name = instance.public_dns_name
                     except NameError:
@@ -128,7 +144,10 @@ class EC2:
                     try:
                         instance.public_ip_address
                         if(instance.public_ip_address is None or instance.public_ip_address == ""):
-                            public_ip_address = "available_only_in_running_state"
+                            if(format == 'table'):
+                                public_ip_address = bcolors.SHUTDOWN+'available_only_in_running_state'+bcolors.NULLIFY
+                            else:
+                                public_ip_address = 'available_only_in_running_state'
                         else:
                             public_ip_address = instance.public_ip_address
                     except NameError:
@@ -144,6 +163,18 @@ class EC2:
                     try:
                         instance.state['Name']
                         instance_state = instance.state['Name']
+                        if (instance_state == 'running'):
+                            if(format == 'table'):
+                                instance_state = bcolors.RUNNING+'RUNNING'+bcolors.NULLIFY
+                            else:
+                                instance_state = instance_state
+                        elif(instance_state == 'stopped'):
+                            if(format == 'table'):
+                                instance_state = bcolors.SHUTDOWN+'SHUTDOWN'+bcolors.NULLIFY
+                            else:
+                                instance_state = instance_state
+                        else:
+                            instance_state = instance_state
                     except NameError:
                         self._log.error('value not defined')
                     try:
@@ -369,43 +400,61 @@ class EC2:
                         'group_id': security_group_id,
                     }
                     args[instance.id] = {
-                        'ami_launch_index': ami_launch_index,
-                        'image_id': image_id,
-                        'instance_type': instance_type,
-                        'kernel_id': kernel_id,
-                        'key_name': key_name,
-                        'launch_time': launch_time,
-                        'monitoring': monitoring,
-                        'availability_zone': availability_zone,
-                        'group_name': group_name,
-                        'tenancy': tenancy,
-                        'platform': platform,
                         'public_dns_name': public_dns_name,
                         'public_ip_address': public_ip_address,
                         'instance_state': instance_state,
-                        'ramdisk_id': ramdisk_id,
-                        'state_transition_reason': state_transition_reason,
-                        'architecture': architecture,
-                        'block_device_mappings': block_device_mappings,
-                        'client_token': client_token,
-                        'ebs_optimized': ebs_optimized,
-                        'ena_support': ena_support,
-                        'hypervisor': hypervisor,
-                        'network_interfaces': netinfo,
-                        'root_device_name': root_device_name,
-                        'root_device_type': root_device_type,
-                        'security_groups': security_groups,
-                        'state_reason': state_reason,
-                        'tags': tags,
-                        'virtualization_type': virtualization_type,
-                        'cpu_options': cpu_options,
+                        'instance_type': instance_type,
+                        'network_interfaces': netinfo["association"],
+                        # 'ami_launch_index': ami_launch_index,
+                        # 'image_id': image_id,
+                        # 'kernel_id': kernel_id,
+                        # 'key_name': key_name,
+                        # 'launch_time': launch_time,
+                        # 'monitoring': monitoring,
+                        # 'availability_zone': availability_zone,
+                        # 'group_name': group_name,
+                        # 'tenancy': tenancy,
+                        # 'platform': platform,
+                        # 'ramdisk_id': ramdisk_id,
+                        # 'state_transition_reason': state_transition_reason,
+                        # 'architecture': architecture,
+                        # 'block_device_mappings': block_device_mappings,
+                        # 'client_token': client_token,
+                        # 'ebs_optimized': ebs_optimized,
+                        # 'ena_support': ena_support,
+                        # 'hypervisor': hypervisor,
+                        # 'root_device_name': root_device_name,
+                        # 'root_device_type': root_device_type,
+                        # 'security_groups': security_groups,
+                        # 'state_reason': state_reason,
+                        # 'tags': tags,
+                        # 'virtualization_type': virtualization_type,
+                        # 'cpu_options': cpu_options,
                     }
+
+                    tabformat.append([instance.id,
+                                      instance_state,
+                                      instance_type,
+                                      netinfo["association"]["PrivateIpAddress"],
+                                      netinfo["association"]["PrivateDnsName"],
+                                      public_ip_address,
+                                      public_dns_name, ])
             if (args == {}):
                 args = {
                     'warning': 'No EC2 instance found in given region. Please try another region in murid yaml file or create a new EC2 instance.'
                 }
                 ppprint(json.dumps(args, sort_keys=True, indent=4))
             else:
-                ppprint(json.dumps(args, sort_keys=True, indent=4))
+                if(format == 'table'):
+                    tabs = [bcolors.HEADER+"ID"+bcolors.NULLIFY,
+                            bcolors.HEADER+"STATE"+bcolors.NULLIFY,
+                            bcolors.HEADER+"TYPE"+bcolors.NULLIFY,
+                            bcolors.HEADER+"PRIVATE_IP"+bcolors.NULLIFY,
+                            bcolors.HEADER+"PRIVATE_DNS_NAME"+bcolors.NULLIFY,
+                            bcolors.HEADER+"PUBLIC_IP"+bcolors.NULLIFY,
+                            bcolors.HEADER+"PUBLIC_DNS_NAME"+bcolors.NULLIFY]
+                    print(tabulate(tabformat, tabs, "fancy_grid"))
+                else:
+                    ppprint(json.dumps(args, sort_keys=True, indent=4))
         finally:
             self._log.traceExit(self.__class__.__name__)

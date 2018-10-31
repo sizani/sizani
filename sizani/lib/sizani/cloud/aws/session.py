@@ -49,14 +49,15 @@ class AWSSessionImpl(interfaces.SessionInterface):
             self.log.traceEnter(self.__class__.__name__)
             awscreds = self._yamlmgr.readYAML()
             try:
-                session = boto3.Session(
+                session = boto3.session.Session(
                     aws_access_key_id=awscreds['aws_access_key_id'],
                     aws_secret_access_key=awscreds['aws_secret_access_key'],
                 )
                 if (awscreds['resources'] == 'ec2'):
                     ec2resource = session.resource(
                         awscreds['resources'], region_name=awscreds['region'])
-                    ec2.EC2(ec2resource)
+                    format = awscreds['format']
+                    ec2.EC2(ec2resource, format)
                     # import datetime
                     # endTime = datetime.datetime.utcnow()
                     # startTime = endTime - datetime.timedelta(minutes=10)
@@ -68,7 +69,7 @@ class AWSSessionImpl(interfaces.SessionInterface):
                     #     MetricName='CPUUtilization',
                     #     Namespace='AWS/EC2',
                     #     Statistics=['Average'],
-                    #     Dimensions=[{'Name': 'InstanceId', 'Value': 'i-0113d9d2484a01e8e'}]
+                    #     Dimensions=[{'Name': 'InstanceId', 'Value': 'i-0d353570070035127'}]
                     # )
                     # print(stats)
             except (KeyError, TypeError) as kt:
