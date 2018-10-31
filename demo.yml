@@ -1,5 +1,5 @@
 ---
-# Mandatory provider name: aws [Enterprise version will support all cloud providers]
+# Mandatory provider name: aws [I will add support to other cloud providers as well]
 aws:
   # Mandatory access key to connect to AWS cloud provider
   aws_access_key_id: MYACCESSKEYID
