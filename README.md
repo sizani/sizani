@@ -1,5 +1,5 @@
 # sizani
-A cloud status and reporting framework. You can avoid writing scripts and using generic command line tool to check stats or monitor your cloud resource instead use YAML to get a complete information about your infrastructure running on Cloud in a json format or beautify tabular format.
+A cloud status and reporting framework. You can avoid writing scripts and generic command line tools. Now you can use a very user-friendly framework to check stats or monitor your cloud infrastructure using a simple YAML. The default output is in a beautify tabular format or json format.
 I have tested the framework on Mac, Ubuntu and Windows 10.
 
 ## Getting Started
@@ -8,7 +8,7 @@ These instructions will get you a copy of the project up and running on your mac
 ### Services Supported
 1. EC2
 
-I will add a lot more to this project. Many more AWS services, cloud monitoring tracking, selective information, alerting ..etc.
+I will add a lot more to this project. Many more cloud providers, services, cloud monitoring tracking, selective information, alerting ..etc.
 
 ### Installation
 The project is not yet on pypi. I will upload it to pypi soon.
@@ -23,7 +23,7 @@ unzip master.zip
 ```
 3. Next change directory and enter sizani-aws-master & execute pip command to install all dependencies
 ```
-cd sizani-aws-master
+cd sizani-master
 pip install .
 ```
 4. Next, execute sizani from command prompt to look for help instructions
@@ -39,13 +39,13 @@ optional arguments:
  ```
 5. Next, let`s pass the yaml file to sizani to connect to AWS and capture common stats information in the default beautify tabular format about your AWS resource.
 ```
-sizani -f myec2.yaml
+sizani -f myec2.yml
 ```
 ![table_format](https://github.com/sizani/sizani/blob/master/docs/img/table_output.png?raw=true)
 
 6. Next, let`s pass the yaml file to sizani to connect to AWS and capture common stats information in JSON format about your AWS resource.
 ```
-sizani -f myec2.yaml
+sizani -f myec2.yml
 {
     "i-035c7ae5efa22c67d": {
         "instance_state": "running",
@@ -86,7 +86,7 @@ sizani -f myec2.yaml
 
 8. Let`s try steps 7 with json format.
 ```
-sizani -f myec2.yaml
+sizani -f myec2.yml
 {
     "i-035c7ae5efa22c67d": {
         "instance_state": "running",
@@ -123,7 +123,7 @@ YAML is a very simple human-readable data serialization language. Please make su
 
 ```
 ---
-# Mandatory provider name: aws [Enterprise version will support all cloud providers and many more functionalities]
+# Mandatory provider name: aws [I will support all cloud providers and many more functionalities]
 aws:
   # Mandatory access key to connect to AWS cloud provider
   aws_access_key_id: MYACCESSKEYID
@@ -136,5 +136,5 @@ aws:
   # Currently prints a few attributes even with all as attributes value.
   attributes: common
   # output_format [table|Json] - Default: table (lower_case) | This option is not required.
-  format: json
+  format: table
 ```
