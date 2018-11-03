@@ -1,6 +1,8 @@
 # # -*- coding: utf-8 -*-
 import json
 import re
+import psutil
+import paramiko
 from collections import defaultdict
 from sizani.lib.sizani.utils import logconf
 from sizani.lib.sizani.utils.decor import Decor as ppprint
@@ -20,13 +22,17 @@ class EC2:
     # Custom logger
     _log = logconf.SIZANILogger()
 
-    def __init__(self, ec2resource, format):
+    def __init__(self, ec2resource, format, monitoring, ssh_session, key, ssh_username):
         """Default constructor"""
         try:
             self._log.traceEnter(self.__class__.__name__)
             self._ec2resource = ec2resource
             self._format = format
-            self._monitor(ec2resource, format)
+            self._monitoring = monitoring
+            self._ssh_session = ssh_session
+            self._key = key
+            self._ssh_username = ssh_username
+            self._monitor(ec2resource, format, monitoring, ssh_session, key, ssh_username)
         finally:
             self._log.traceExit(self.__class__.__name__)
 
@@ -38,7 +44,7 @@ class EC2:
         finally:
             self._log.traceExit(self.__class__.__name__)
 
-    def _monitor(self, ec2resource, format):
+    def _monitor(self, ec2resource, format, monitoring, ssh_session, key, ssh_username):
         try:
             self._log.traceEnter(self.__class__.__name__)
             args = defaultdict()
@@ -89,11 +95,11 @@ class EC2:
                         launch_time = instance.launch_time.strftime("%Y-%m-%d %H:%M:%S")
                     except NameError:
                         self._log.error('value not defined')
-                    try:
-                        instance.monitoring
-                        monitoring = instance.monitoring
-                    except NameError:
-                        self._log.error('value not defined')
+                    # try:
+                    #     instance.monitoring
+                    #     monitoring = instance.monitoring
+                    # except NameError:
+                    #     self._log.error('value not defined')
                     try:
                         instance.placement['AvailabilityZone']
                         availability_zone = instance.placement['AvailabilityZone']
@@ -115,9 +121,9 @@ class EC2:
                     try:
                         instance.platform
                         if(instance.platform is None):
-                            platform = "not_applicable"
+                            platform = "*nix"
                         else:
-                            platform = instance.platform
+                            platform = "windows"
                     except NameError:
                         self._log.error('value not defined')
                     try:
@@ -399,12 +405,35 @@ class EC2:
                         'group_name': security_group_name,
                         'group_id': security_group_id,
                     }
+                    ssh_session.connect(public_ip_address, port=22, username=ssh_username,
+                                        password=None, pkey=key, key_filename=None,
+                                        timeout=60, allow_agent=True, look_for_keys=True,
+                                        compress=False, sock=None, gss_auth=False,
+                                        gss_kex=False, gss_deleg_creds=True, gss_host=None,
+                                        banner_timeout=None, auth_timeout=None, gss_trust_dns=True,
+                                        passphrase=None)
+                    sftp_session = ssh_session.open_sftp()
+                    sftp_session.put('cmd/sys', '/tmp/sizanisys')
+                    ssh_session.exec_command('chmod +x /tmp/sizanisys')
+                    stdin, stdout, stderr = ssh_session.exec_command('/tmp/sizanisys')
+                    sys_dict = stdout.readlines()[0]
+                    sys_json = json.loads(sys_dict)
+                    memory_usage_percent = sys_json['memory_usage_percent']
+                    swap_usage_percent = sys_json['swap_usage_percent']
+                    partition_usage_percent = sys_json['partition_usage_percent']
+                    cpu_percent = sys_json['cpu_percent']
+                    ssh_session.close()
                     args[instance.id] = {
                         'public_dns_name': public_dns_name,
                         'public_ip_address': public_ip_address,
                         'instance_state': instance_state,
                         'instance_type': instance_type,
                         'network_interfaces': netinfo["association"],
+                        'platform': platform,
+                        'memory_usage_percent': memory_usage_percent,
+                        'swap_usage_percent': swap_usage_percent,
+                        'partition_usage_percent': partition_usage_percent,
+                        'cpu_percent': cpu_percent,
                         # 'ami_launch_index': ami_launch_index,
                         # 'image_id': image_id,
                         # 'kernel_id': kernel_id,
@@ -438,7 +467,13 @@ class EC2:
                                       netinfo["association"]["PrivateIpAddress"],
                                       netinfo["association"]["PrivateDnsName"],
                                       public_ip_address,
-                                      public_dns_name, ])
+                                      public_dns_name,
+                                      platform,
+                                      memory_usage_percent,
+                                      swap_usage_percent,
+                                      partition_usage_percent,
+                                      cpu_percent])
+
             if (args == {}):
                 args = {
                     'warning': 'No EC2 instance found in given region. Please try another region in murid yaml file or create a new EC2 instance.'
@@ -452,7 +487,12 @@ class EC2:
                             bcolors.HEADER+"PRIVATE_IP"+bcolors.NULLIFY,
                             bcolors.HEADER+"PRIVATE_DNS_NAME"+bcolors.NULLIFY,
                             bcolors.HEADER+"PUBLIC_IP"+bcolors.NULLIFY,
-                            bcolors.HEADER+"PUBLIC_DNS_NAME"+bcolors.NULLIFY]
+                            bcolors.HEADER+"PUBLIC_DNS_NAME"+bcolors.NULLIFY,
+                            bcolors.HEADER+"PLATFORM"+bcolors.NULLIFY,
+                            bcolors.HEADER+"MEM_USAGE (%)"+bcolors.NULLIFY,
+                            bcolors.HEADER+"SWAP_USAGE (%)"+bcolors.NULLIFY,
+                            bcolors.HEADER+"PARTITION_USAGE (%)"+bcolors.NULLIFY,
+                            bcolors.HEADER+"CPU_USAGE (%)"+bcolors.NULLIFY]
                     print(tabulate(tabformat, tabs, "fancy_grid"))
                 else:
                     ppprint(json.dumps(args, sort_keys=True, indent=4))

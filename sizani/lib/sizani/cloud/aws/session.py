@@ -2,6 +2,7 @@
 import botocore
 import boto3
 import json
+import paramiko
 import sys
 from sizani.lib.sizani.core import exceptions
 from sizani.lib.sizani.core import interfaces
@@ -11,7 +12,6 @@ from sizani.lib.sizani.modules import ec2
 
 class AWSSessionImpl(interfaces.SessionInterface):
     log = logconf.SIZANILogger()
-    # ppprint = p.Decor.prompt_print_success()
 
     def __init__(self, YamlManager):
         try:
@@ -57,19 +57,68 @@ class AWSSessionImpl(interfaces.SessionInterface):
                     ec2resource = session.resource(
                         awscreds['resources'], region_name=awscreds['region'])
                     format = awscreds['format']
-                    ec2.EC2(ec2resource, format)
+                    monitoring = awscreds['monitoring']
+                    ssh = awscreds['ssh']
+                    ssh_auth_type = awscreds['auth_type']
+                    ssh_username = awscreds['username']
+                    ssh_access_key = awscreds['access_key']
+                    # ssh_password = awscreds['password']
+                    if(monitoring == 'sizani'):
+                        if(ssh == None):
+                            self.log.error(
+                                'ssh is required when monitoring is set to sizani in yaml file.')
+                        else:
+                            if (ssh_auth_type is None or ssh_auth_type == ''):
+                                self.log.error(
+                                    'ssh is defined but no auth_type is defined in yaml file.')
+                            elif (ssh_username is None or ssh_username == ''):
+                                self.log.error(
+                                    'ssh is defined but no username is defined in yaml file.')
+                            elif (ssh_access_key is None or ssh_access_key == ''):
+                                self.log.error(
+                                    'ssh is defined but no access_key is defined in yaml file.')
+                            else:
+                                ssh_session = paramiko.SSHClient()
+                                ssh_session.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+                                key = paramiko.RSAKey.from_private_key_file(ssh_access_key)
+                                ec2.EC2(ec2resource, format, monitoring,
+                                        ssh_session, key, ssh_username)
+                    elif(monitoring == 'cloudwatch'):
+                        self.log.error('cloudwatch Method not implemented yet.')
+                    elif(monitoring == None):
+                        ec2.EC2(ec2resource, format, monitoring)
+                    else:
+                        ec2.EC2(ec2resource, format, monitoring)
+                    # key = paramiko.RSAKey.from_private_key_file(
+                    #     "/Users/ravitiwari/Desktop/PROJECTS/SIZANI/sizani.pem")
+                    # import psutil
+                    # ssh.connect("52.12.29.235",
+                    #             port=22,
+                    #             username="ec2-user",
+                    #             password=None,
+                    #             pkey=key,
+                    #             key_filename=None,
+                    #             timeout=30,
+                    #             allow_agent=True, look_for_keys=True, compress=False, sock=None,
+                    #             gss_auth=False, gss_kex=False, gss_deleg_creds=True, gss_host=None,
+                    #             banner_timeout=None, auth_timeout=None, gss_trust_dns=True, passphrase=None)
+                    # sftp = ssh.open_sftp()
+                    # sftp.put('modules/sys', '/var/tmp/sizanisys')
+                    # stdin, stdout, stderr = ssh.exec_command('python /var/tmp/testing.py')
+                    # print(stdout.readlines())
+                    # ssh.close()
                     # import datetime
                     # endTime = datetime.datetime.utcnow()
                     # startTime = endTime - datetime.timedelta(minutes=10)
                     # ec2resourc = session.client('cloudwatch', region_name=awscreds['region'])
                     # stats = ec2resourc.get_metric_statistics(
                     #     Period=300,
-                    #     StartTime=datetime.datetime.utcnow() - datetime.timedelta(seconds=600),
+                    #     StartTime=datetime.datetime.utcnow() - datetime.timedelta(seconds=300),
                     #     EndTime=datetime.datetime.utcnow(),
                     #     MetricName='CPUUtilization',
                     #     Namespace='AWS/EC2',
                     #     Statistics=['Average'],
-                    #     Dimensions=[{'Name': 'InstanceId', 'Value': 'i-0d353570070035127'}]
+                    #     Dimensions=[{'Name': 'InstanceId', 'Value': 'i-0516b064ea3602326'}]
                     # )
                     # print(stats)
             except (KeyError, TypeError) as kt:
