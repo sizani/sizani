@@ -1,4 +1,4 @@
-# sizani
+# sizani - (beta)
 A cloud status and reporting framework. You can avoid writing scripts and generic command line tools. Now you can use a very user-friendly framework to check stats or monitor your cloud infrastructure using a simple YAML. The default output is in a beautify tabular format or json format.
 I have tested the framework on Mac, Ubuntu and Windows 10.
 
