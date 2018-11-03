@@ -102,32 +102,46 @@ class YamlManager:
                 if(monitoring == True):
                     self._awscreds['monitoring'] = self._data['aws']['monitoring']
                 else:
-                    self._awscreds['monitoring'] = None
+                    self._awscreds['monitoring'] = 'disabled'
                 ssh = "ssh" in self._data['aws']
-                if(ssh == True):
+                if(ssh == True and ssh is not None and ssh != ''):
                     self._awscreds['ssh'] = self._data['aws']['ssh']
+                    auth_type = "auth_type" in self._data['aws']['ssh']
+                    if(auth_type == True):
+                        self._awscreds['auth_type'] = self._data['aws']['ssh']['auth_type']
+                    elif(auth_type is None or auth_type == ''):
+                        self._awscreds['auth_type'] = 'disabled'
+                    else:
+                        self._awscreds['auth_type'] = 'disabled'
+                    username = "username" in self._data['aws']['ssh']
+                    if(username == True):
+                        self._awscreds['username'] = self._data['aws']['ssh']['username']
+                    else:
+                        self._awscreds['username'] = 'disabled'
+                    access_key = "access_key" in self._data['aws']['ssh']
+                    if(access_key == True):
+                        self._awscreds['access_key'] = self._data['aws']['ssh']['access_key']
+                    else:
+                        self._awscreds['access_key'] = None
+                elif(ssh is None or ssh == ''):
+                    self._awscreds['ssh'] = 'disabled'
                 else:
-                    self._awscreds['ssh'] = None
-                auth_type = "auth_type" in self._data['aws']['ssh']
-                if(auth_type == True):
-                    self._awscreds['auth_type'] = self._data['aws']['ssh']['auth_type']
-                else:
-                    self._awscreds['auth_type'] = None
-                username = "username" in self._data['aws']['ssh']
-                if(username == True):
-                    self._awscreds['username'] = self._data['aws']['ssh']['username']
-                else:
-                    self._awscreds['username'] = None
-                access_key = "access_key" in self._data['aws']['ssh']
-                if(access_key == True):
-                    self._awscreds['access_key'] = self._data['aws']['ssh']['access_key']
-                else:
-                    self._awscreds['access_key'] = None
-                password = "password" in self._data['aws']['ssh']
-                if(password == True):
-                    self._awscreds['password'] = self._data['aws']['ssh']['password']
-                else:
-                    self._awscreds['password'] = None
+                    self._awscreds['ssh'] = 'disabled'
+                # username = "username" in self._data['aws']['ssh']
+                # if(username == True):
+                #     self._awscreds['username'] = self._data['aws']['ssh']['username']
+                # else:
+                #     self._awscreds['username'] = None
+                # access_key = "access_key" in self._data['aws']['ssh']
+                # if(access_key == True):
+                #     self._awscreds['access_key'] = self._data['aws']['ssh']['access_key']
+                # else:
+                #     self._awscreds['access_key'] = None
+                # password = "password" in self._data['aws']['ssh']
+                # if(password == True):
+                #     self._awscreds['password'] = self._data['aws']['ssh']['password']
+                # else:
+                #     self._awscreds['password'] = None
                 return self._awscreds
             except (KeyError, TypeError) as kt:
                 self._log.error(

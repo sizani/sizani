@@ -58,16 +58,16 @@ class AWSSessionImpl(interfaces.SessionInterface):
                         awscreds['resources'], region_name=awscreds['region'])
                     format = awscreds['format']
                     monitoring = awscreds['monitoring']
-                    ssh = awscreds['ssh']
-                    ssh_auth_type = awscreds['auth_type']
-                    ssh_username = awscreds['username']
-                    ssh_access_key = awscreds['access_key']
                     # ssh_password = awscreds['password']
                     if(monitoring == 'sizani'):
-                        if(ssh == None):
+                        ssh = awscreds['ssh']
+                        if(ssh is None or ssh == 'disabled'):
                             self.log.error(
                                 'ssh is required when monitoring is set to sizani in yaml file.')
                         else:
+                            ssh_auth_type = awscreds['auth_type']
+                            ssh_username = awscreds['username']
+                            ssh_access_key = awscreds['access_key']
                             if (ssh_auth_type is None or ssh_auth_type == ''):
                                 self.log.error(
                                     'ssh is defined but no auth_type is defined in yaml file.')
@@ -85,42 +85,12 @@ class AWSSessionImpl(interfaces.SessionInterface):
                                         ssh_session, key, ssh_username)
                     elif(monitoring == 'cloudwatch'):
                         self.log.error('cloudwatch Method not implemented yet.')
-                    elif(monitoring == None):
-                        ec2.EC2(ec2resource, format, monitoring)
+                    elif(monitoring == 'disabled'):
+                        ec2.EC2(ec2resource, format, monitoring,
+                                ssh_session=None, key=None, ssh_username=None)
                     else:
-                        ec2.EC2(ec2resource, format, monitoring)
-                    # key = paramiko.RSAKey.from_private_key_file(
-                    #     "/Users/ravitiwari/Desktop/PROJECTS/SIZANI/sizani.pem")
-                    # import psutil
-                    # ssh.connect("52.12.29.235",
-                    #             port=22,
-                    #             username="ec2-user",
-                    #             password=None,
-                    #             pkey=key,
-                    #             key_filename=None,
-                    #             timeout=30,
-                    #             allow_agent=True, look_for_keys=True, compress=False, sock=None,
-                    #             gss_auth=False, gss_kex=False, gss_deleg_creds=True, gss_host=None,
-                    #             banner_timeout=None, auth_timeout=None, gss_trust_dns=True, passphrase=None)
-                    # sftp = ssh.open_sftp()
-                    # sftp.put('modules/sys', '/var/tmp/sizanisys')
-                    # stdin, stdout, stderr = ssh.exec_command('python /var/tmp/testing.py')
-                    # print(stdout.readlines())
-                    # ssh.close()
-                    # import datetime
-                    # endTime = datetime.datetime.utcnow()
-                    # startTime = endTime - datetime.timedelta(minutes=10)
-                    # ec2resourc = session.client('cloudwatch', region_name=awscreds['region'])
-                    # stats = ec2resourc.get_metric_statistics(
-                    #     Period=300,
-                    #     StartTime=datetime.datetime.utcnow() - datetime.timedelta(seconds=300),
-                    #     EndTime=datetime.datetime.utcnow(),
-                    #     MetricName='CPUUtilization',
-                    #     Namespace='AWS/EC2',
-                    #     Statistics=['Average'],
-                    #     Dimensions=[{'Name': 'InstanceId', 'Value': 'i-0516b064ea3602326'}]
-                    # )
-                    # print(stats)
+                        ec2.EC2(ec2resource, format, monitoring,
+                                ssh_session=None, key=None, ssh_username=None)
             except (KeyError, TypeError) as kt:
                 pass
             except ValueError as ve:

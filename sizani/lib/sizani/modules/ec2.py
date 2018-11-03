@@ -51,6 +51,7 @@ class EC2:
             placement = defaultdict()
             productcodes = defaultdict()
             netinfo = defaultdict()
+            sysmon = defaultdict()
             tabformat = []
             instances = self._ec2resource.instances.filter(Filters=[{
                 'Name':
@@ -405,24 +406,42 @@ class EC2:
                         'group_name': security_group_name,
                         'group_id': security_group_id,
                     }
-                    ssh_session.connect(public_ip_address, port=22, username=ssh_username,
-                                        password=None, pkey=key, key_filename=None,
-                                        timeout=60, allow_agent=True, look_for_keys=True,
-                                        compress=False, sock=None, gss_auth=False,
-                                        gss_kex=False, gss_deleg_creds=True, gss_host=None,
-                                        banner_timeout=None, auth_timeout=None, gss_trust_dns=True,
-                                        passphrase=None)
-                    sftp_session = ssh_session.open_sftp()
-                    sftp_session.put('cmd/sys', '/tmp/sizanisys')
-                    ssh_session.exec_command('chmod +x /tmp/sizanisys')
-                    stdin, stdout, stderr = ssh_session.exec_command('/tmp/sizanisys')
-                    sys_dict = stdout.readlines()[0]
-                    sys_json = json.loads(sys_dict)
-                    memory_usage_percent = sys_json['memory_usage_percent']
-                    swap_usage_percent = sys_json['swap_usage_percent']
-                    partition_usage_percent = sys_json['partition_usage_percent']
-                    cpu_percent = sys_json['cpu_percent']
-                    ssh_session.close()
+                    if(ssh_session == None):
+                        pass
+                    elif(key == None):
+                        pass
+                    elif(ssh_username == None):
+                        pass
+                    else:
+                        ssh_session.connect(public_ip_address, port=22, username=ssh_username,
+                                            password=None, pkey=key, key_filename=None,
+                                            timeout=60, allow_agent=True, look_for_keys=True,
+                                            compress=False, sock=None, gss_auth=False,
+                                            gss_kex=False, gss_deleg_creds=True, gss_host=None,
+                                            banner_timeout=None, auth_timeout=None, gss_trust_dns=True,
+                                            passphrase=None)
+                        sftp_session = ssh_session.open_sftp()
+                        sftp_session.put('cmd/sys', '/tmp/sizanisys')
+                        ssh_session.exec_command('chmod +x /tmp/sizanisys')
+                        stdin, stdout, stderr = ssh_session.exec_command('/tmp/sizanisys')
+                        sys_dict = stdout.readlines()[0]
+                        sys_json = json.loads(sys_dict)
+                        sysmon = {
+                            'memory_usage_percent': sys_json['memory_usage_percent'],
+                            'swap_usage_percent': sys_json['swap_usage_percent'],
+                            'partition_usage_percent': sys_json['partition_usage_percent'],
+                            'cpu_percent': sys_json['cpu_percent'],
+                        }
+                        ssh_session.close()
+                    # try:
+                    #     if(memory_usage_percent is None or memory_usage_percent == ''):
+                    #         print(memory_usage_percent)
+                    #         memory_usage_percent = 'only_available_if_monitoring_enabled'
+                    #     else:
+                    #         memory_usage_percent = memory_usage_percent
+                    #         print(memory_usage_percent)
+                    # except NameError:
+                    #     self._log.error('value not defined')
                     args[instance.id] = {
                         'public_dns_name': public_dns_name,
                         'public_ip_address': public_ip_address,
@@ -430,10 +449,10 @@ class EC2:
                         'instance_type': instance_type,
                         'network_interfaces': netinfo["association"],
                         'platform': platform,
-                        'memory_usage_percent': memory_usage_percent,
-                        'swap_usage_percent': swap_usage_percent,
-                        'partition_usage_percent': partition_usage_percent,
-                        'cpu_percent': cpu_percent,
+                        'memory_usage_percent': sysmon.get('memory_usage_percent'),
+                        'swap_usage_percent': sysmon.get('swap_usage_percent'),
+                        'partition_usage_percent': sysmon.get('partition_usage_percent'),
+                        'cpu_percent': sysmon.get('cpu_percent'),
                         # 'ami_launch_index': ami_launch_index,
                         # 'image_id': image_id,
                         # 'kernel_id': kernel_id,
@@ -469,10 +488,11 @@ class EC2:
                                       public_ip_address,
                                       public_dns_name,
                                       platform,
-                                      memory_usage_percent,
-                                      swap_usage_percent,
-                                      partition_usage_percent,
-                                      cpu_percent])
+                                      sysmon.get('memory_usage_percent'),
+                                      sysmon.get('swap_usage_percent'),
+                                      sysmon.get('partition_usage_percent'),
+                                      sysmon.get('cpu_percent'),
+                                      ])
 
             if (args == {}):
                 args = {
